@@ -5,17 +5,26 @@
  */
 package screen;
 
+import entities.model.Sequencial;
+import java.awt.Color;
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import javax.swing.JOptionPane;
+
 /**
  *
  * @author itzfeltrin
  */
 public class MainScreen extends javax.swing.JFrame {
 
-    /**
-     * Creates new form MainScreen
-     */
+    BufferedReader reader;    
+    
     public MainScreen() {
-        initComponents();
+        initComponents();  
+        txtAreaResult.setEditable(false);        
     }
 
     /**
@@ -37,7 +46,7 @@ public class MainScreen extends javax.swing.JFrame {
         radioSeq = new javax.swing.JRadioButton();
         goButton = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        jScrollPane2 = new javax.swing.JScrollPane();
         txtAreaResult = new javax.swing.JTextArea();
 
         buttonGroup1.add(radioB);
@@ -95,43 +104,39 @@ public class MainScreen extends javax.swing.JFrame {
         jLabel5.setText("Resultados");
 
         txtAreaResult.setColumns(20);
+        txtAreaResult.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
         txtAreaResult.setRows(5);
-        txtAreaResult.setEnabled(false);
-        txtAreaResult.setFocusable(false);
-        jScrollPane1.setViewportView(txtAreaResult);
+        txtAreaResult.setBorder(javax.swing.BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        jScrollPane2.setViewportView(txtAreaResult);
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
         jPanel1Layout.setHorizontalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel1Layout.createSequentialGroup()
-                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addGroup(jPanel1Layout.createSequentialGroup()
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
-                                    .addComponent(jLabel3)
-                                    .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
-                                .addGap(18, 18, 18)
-                                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(cpfField)
-                                    .addGroup(jPanel1Layout.createSequentialGroup()
-                                        .addGap(0, 102, Short.MAX_VALUE)
-                                        .addComponent(radioB)
-                                        .addGap(18, 18, 18)
-                                        .addComponent(radioSeq, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE))))))
-                    .addGroup(jPanel1Layout.createSequentialGroup()
-                        .addContainerGap()
-                        .addComponent(jScrollPane1)))
-                .addContainerGap())
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel1Layout.createSequentialGroup()
                 .addGap(0, 0, Short.MAX_VALUE)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
                     .addComponent(jLabel5, javax.swing.GroupLayout.DEFAULT_SIZE, 424, Short.MAX_VALUE)
                     .addComponent(goButton, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                 .addGap(24, 24, 24))
+            .addGroup(jPanel1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jScrollPane2)
+                    .addComponent(jLabel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addGroup(jPanel1Layout.createSequentialGroup()
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                            .addComponent(jLabel3)
+                            .addComponent(jLabel2, javax.swing.GroupLayout.PREFERRED_SIZE, 41, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addGap(18, 18, 18)
+                        .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(cpfField)
+                            .addGroup(jPanel1Layout.createSequentialGroup()
+                                .addGap(0, 102, Short.MAX_VALUE)
+                                .addComponent(radioB)
+                                .addGap(18, 18, 18)
+                                .addComponent(radioSeq, javax.swing.GroupLayout.PREFERRED_SIZE, 110, javax.swing.GroupLayout.PREFERRED_SIZE)))))
+                .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -152,7 +157,7 @@ public class MainScreen extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
+                .addComponent(jScrollPane2, javax.swing.GroupLayout.DEFAULT_SIZE, 230, Short.MAX_VALUE)
                 .addContainerGap())
         );
 
@@ -173,9 +178,30 @@ public class MainScreen extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void goButtonMouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_goButtonMouseClicked
-        
-    }//GEN-LAST:event_goButtonMouseClicked
+        try {
+            txtAreaResult.setText("");
+            this.reader = new BufferedReader(new FileReader("csv/candidatos.csv"));
+            String cpf = cpfField.getText().replace(".", "").replace("-", "").replace(" ", "");        
+            if(String.valueOf(cpf).length() == 11) {
+                if(radioB.isSelected()) {
 
+                }
+                else if(radioSeq.isSelected()){
+                    Sequencial seq = new Sequencial(this.reader);
+                    txtAreaResult.setText(seq.search(cpf));
+                }
+                else {
+                    JOptionPane.showMessageDialog(null, "Selecione um método.");
+                }
+            }
+            else {
+                JOptionPane.showMessageDialog(null, "CPF inválido.");
+            }
+        } catch (FileNotFoundException ex) {
+            ex.printStackTrace();
+        }
+    }//GEN-LAST:event_goButtonMouseClicked
+    
     /**
      * @param args the command line arguments
      */
@@ -220,7 +246,7 @@ public class MainScreen extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel5;
     private javax.swing.JPanel jPanel1;
-    private javax.swing.JScrollPane jScrollPane1;
+    private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JRadioButton radioB;
     private javax.swing.JRadioButton radioSeq;
     private javax.swing.JTextArea txtAreaResult;
